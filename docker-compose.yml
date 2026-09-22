@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: cesda
+      POSTGRES_USER: cesda
+      POSTGRES_PASSWORD: cesda_local
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - cesda_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U cesda']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  cesda_data:

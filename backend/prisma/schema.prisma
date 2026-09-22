@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client"
+  output = "../src/generated/prisma"
+}
+datasource db {
+  provider = "postgresql"
+}
+enum Role {
+  USER
+  ADMIN
+}
+enum Status {
+  ACTIVE
+  BLOCKED
+}
+enum PixType {
+  CPF
+  EMAIL
+  PHONE
+  RANDOM
+}
+enum TransactionType {
+  PIX_SENT
+  PIX_RECEIVED
+  DEPOSIT
+  PURCHASE
+  TRANSFER
+  REFUND
+}
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+enum Category {
+  ALIMENTACAO
+  TRANSPORTE
+  COMPRAS
+  LAZER
+  EDUCACAO
+  SAUDE
+  ASSINATURAS
+  CASA
+  VIAGEM
+  OUTROS
+}
+model User {
+  id String @id @default(uuid()) @db.Uuid
+  name String @db.VarChar(100)
+  cpf String @unique @db.VarChar(11)
+  email String @unique @db.VarChar(254)
+  phone String @db.VarChar(15)
+  passwordHash String
+  birthDate DateTime @db.Date
+  role Role @default(USER)
+  status Status @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  account Account?
+  sessions Session[]
+  notifications Notification[]
+  audits AuditLog[]
+  @@index([createdAt])
+}
+model Account {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @unique @db.Uuid
+  user User @relation(fields:[userId], references:[id])
+  agency String @default("0001")
+  accountNumber String @unique
+  balance Int @default(0)
+  status Status @default(ACTIVE)
+  dailyPixLimit Int @default(500000)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  pixKeys PixKey[]
+  transactions Transaction[] @relation("Owner")
+  counterpartyTransactions Transaction[] @relation("Counterparty")
+  cards Card[]
+  idempotencies Idempotency[]
+}
+model PixKey {
+  id String @id @default(uuid()) @db.Uuid
+  accountId String @db.Uuid
+  account Account @relation(fields:[accountId], references:[id])
+  type PixType
+  key String @unique @db.VarChar(254)
+  createdAt DateTime @default(now())
+  @@index([accountId])
+}
+model Transaction {
+  id String @id @default(uuid()) @db.Uuid
+  accountId String @db.Uuid
+  account Account @relation("Owner", fields:[accountId],references:[id])
+  counterpartyAccountId String? @db.Uuid
+  counterpartyAccount Account? @relation("Counterparty", fields:[counterpartyAccountId], references:[id])
+  type TransactionType
+  amount Int
+  description String @db.VarChar(140)
+  category Category @default(OUTROS)
+  status TransactionStatus @default(COMPLETED)
+  transactionCode String @unique
+  operationId String @db.Uuid
+  idempotencyKey String? @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([accountId, createdAt])
+  @@index([accountId, type, createdAt])
+  @@index([operationId])
+}
+model Idempotency {
+  id String @id @default(uuid()) @db.Uuid
+  accountId String @db.Uuid
+  account Account @relation(fields:[accountId],references:[id])
+  key String @db.Uuid
+  fingerprint String
+  transactionId String @db.Uuid
+  createdAt DateTime @default(now())
+  @@unique([accountId,key])
+}
+model Card {
+  id String @id @default(uuid()) @db.Uuid
+  accountId String @db.Uuid
+  account Account @relation(fields:[accountId],references:[id])
+  lastFour String
+  demoNumber String @unique
+  holder String
+  expiresAt DateTime
+  blocked Boolean @default(false)
+  createdAt DateTime @default(now())
+  @@index([accountId])
+}
+model Notification {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id])
+  type String
+  title String
+  message String
+  read Boolean @default(false)
+  createdAt DateTime @default(now())
+  @@index([userId, createdAt])
+}
+model AuditLog {
+  id String @id @default(uuid()) @db.Uuid
+  userId String? @db.Uuid
+  user User? @relation(fields:[userId],references:[id])
+  event String
+  resourceId String?
+  createdAt DateTime @default(now())
+  @@index([createdAt])
+  @@index([userId,createdAt])
+}
+model Session {
+  id String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user User @relation(fields:[userId],references:[id])
+  refreshHash String @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime @default(now())
+  @@index([userId])
+}
+

@@ -1,0 +1,28 @@
+{
+  "name": "@cesda/frontend",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src",
+    "typecheck": "next typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "16.3.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "recharts": "^3.7.0",
+    "react-hook-form": "^7.71.1",
+    "@hookform/resolvers": "^5.2.2",
+    "zod": "^4.3.6",
+    "lucide-react": "^0.577.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.2.1",
+    "@tailwindcss/postcss": "^4.2.1",
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3"
+  }
+}

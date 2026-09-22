@@ -1,0 +1,7 @@
+node_modules
+.next
+dist
+package-lock.json
+backend/src/generated
+.local
+frontend/next-env.d.ts

@@ -1,0 +1,41 @@
+{
+  "name": "cesda-bank",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n API,WEB -c blue,cyan \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "lint": "npm run lint --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "test": "npm run test -w backend",
+    "build": "npm run build --workspaces",
+    "format": "prettier --write .",
+    "db:generate": "npm run db:generate -w backend",
+    "db:migrate": "npm run db:migrate -w backend",
+    "db:seed": "npm run db:seed -w backend",
+    "setup:env": "node scripts/setup-env.mjs",
+    "db:local": "node scripts/local-db.mjs",
+    "test:e2e": "playwright test",
+    "format:check": "prettier --check .",
+    "db:prepare-test": "node scripts/test-db.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "concurrently": "^9.2.1",
+    "embedded-postgres": "^18.4.0-beta.17",
+    "eslint": "^9.39.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.0"
+  },
+  "overrides": {
+    "deepmerge-ts": "8.0.2",
+    "mysql2": "3.24.4"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

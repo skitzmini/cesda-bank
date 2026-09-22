@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: cesda-bank-api
+    runtime: node
+    numInstances: 1
+    buildCommand: npm ci --include=dev && npm run build -w backend
+    startCommand: npm run db:migrate -w backend && npm run start -w backend
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 24.20.0
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false
